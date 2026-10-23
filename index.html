@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Documentation technique – Archivage des dossiers médicaux (HDD)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono&display=swap">
+<style>
+:root{--bg:#fff;--fg:#1c2530;--mut:#5b6672;--line:#dde3e8;--side:#111827;--sidefg:#c9d1db;--acc:#0f7a55;--accbg:#e6f4ee;--code:#f3f5f7;--warn:#8a5a00;--warnbg:#fff4d6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1319;--fg:#e4e9ee;--mut:#9aa6b2;--line:#27313b;--side:#0a0e13;--acc:#3ecf99;--accbg:#12301f;--code:#171e26;--warn:#f2c46b;--warnbg:#33290f}}
+:root[data-theme="dark"]{--bg:#0e1319;--fg:#e4e9ee;--mut:#9aa6b2;--line:#27313b;--side:#0a0e13;--acc:#3ecf99;--accbg:#12301f;--code:#171e26;--warn:#f2c46b;--warnbg:#33290f}
+*{box-sizing:border-box}html{scroll-padding-top:16px;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 "IBM Plex Sans",system-ui,sans-serif;display:flex;min-height:100vh}
+nav{width:280px;flex:none;background:var(--side);color:var(--sidefg);position:sticky;top:0;height:100vh;overflow:auto;padding:20px 14px;font-size:14px}
+nav b{display:block;color:#fff;font-size:15px;line-height:1.3;padding:0 8px}nav small{display:block;padding:2px 8px 14px;opacity:.7}
+nav input{width:100%;margin:0 0 10px;padding:8px 10px;border-radius:6px;border:1px solid #2c3746;background:#0b1018;color:#fff;font:inherit}
+nav a{display:block;padding:6px 10px;border-radius:6px;color:inherit;text-decoration:none}nav a:hover{background:#1f2937}
+nav a.on{background:var(--acc);color:#04120c;font-weight:600}
+main{flex:1;min-width:0;padding:40px clamp(20px,5vw,64px) 80px;max-width:920px}
+h1{font-size:30px;line-height:1.2;margin:0 0 6px}h2{font-size:23px;margin:0 0 10px;padding-top:28px;border-top:1px solid var(--line)}h3{font-size:17px;margin:22px 0 6px}
+.meta{color:var(--mut);margin:0 0 28px}p,li{max-width:74ch}code{font:13.5px "IBM Plex Mono",monospace;background:var(--code);padding:1px 5px;border-radius:4px}
+pre{background:var(--code);padding:14px;border-radius:8px;overflow:auto;font:13px/1.5 "IBM Plex Mono",monospace}pre code{padding:0;background:none}
+.w{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14.5px;margin:10px 0}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}th{font-weight:600;background:var(--code)}
+.tag{display:inline-block;font-size:12.5px;padding:1px 8px;border-radius:99px;background:var(--warnbg);color:var(--warn);white-space:nowrap}
+.flow{display:flex;gap:8px;align-items:stretch;margin:14px 0;flex-wrap:wrap}.flow div{flex:1;min-width:150px;border:1.5px solid var(--line);border-radius:8px;padding:10px 12px;font-size:14px}.flow div:nth-child(3){border-color:var(--acc);background:var(--accbg)}.flow b{display:block}
+.ar{flex:none!important;min-width:0!important;border:0!important;padding:0!important;align-self:center;color:var(--mut)}
+.none{display:none}.note{background:var(--warnbg);color:var(--fg);border-left:4px solid var(--warn);padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0}
+@media(max-width:800px){body{flex-direction:column}nav{position:static;width:100%;height:auto;max-height:46vh}}
+</style></head><body>
+<nav><b>Archivage des dossiers médicaux</b><small>Hôpital de District de Deido · v0.3</small>
+<input id="q" type="search" placeholder="Rechercher dans la documentation" aria-label="Rechercher">
+<div id="menu"></div></nav>
+<main>
+<h1>Documentation technique</h1>
+<p class="meta">Application d’archivage de dossiers médicaux · Hôpital de District de Deido (HDD) · Version 0.3 · 21/10/2026 · Réf. SIAF 0.3</p>
+
+<section id="presentation"><h2>1. Présentation</h2>
+<p>Ce site décrit l’architecture, le code, la sécurité, le déploiement et l’exploitation de l’application. Il s’adresse aux développeurs, administrateurs système et bases de données, techniciens de support, responsables sécurité et chefs de projet.</p>
+<table><tr><th>Inclus</th><th>Exclu (documents distincts)</th></tr><tr><td>Architecture, base de données, code source, API, installation, configuration, sécurité, sauvegarde, maintenance</td><td>Guide utilisateur, protocoles de soins, formation du personnel, procédures administratives de l’hôpital</td></tr></table>
+<p>Technologies : <code>Python</code> et <code>Django</code> (backend), <code>React</code> (frontend). Méthode de travail : Agile Scrum.</p></section>
+
+<section id="architecture"><h2>2. Architecture</h2>
+<p>L’application suit une architecture en trois niveaux.</p>
+<div class="flow"><div><b>Client</b>React dans le navigateur</div><div class="ar">→</div><div><b>Serveur</b>API REST Django / DRF</div><div class="ar">→</div><div><b>Données</b>Base relationnelle et stockage des documents</div></div>
+<h3>Archivage d’un dossier</h3>
+<ol><li>L’utilisateur authentifié ouvre le formulaire d’enregistrement.</li><li>Le frontend envoie le dossier et le fichier à l’API, avec le jeton dans l’en-tête.</li><li>Le backend vérifie le jeton et les droits, puis valide les données.</li><li>Le fichier est stocké ; les métadonnées et une entrée de journal sont écrites en base.</li><li>Le backend confirme, le frontend affiche le succès.</li></ol>
+<p>Le choix de Django s’appuie sur son ORM, son administration intégrée et ses protections par défaut (CSRF, sessions, hachage des mots de passe). React permet une interface en composants réutilisables.</p></section>
+
+<section id="code"><h2>3. Code source</h2>
+<p>Dépôt : <code>https://github.com/yannjeffs/tutore_vrai.git</code></p>
+<h3>Backend (<code>backend/apps/</code>)</h3>
+<div class="w"><table><tr><th>Module</th><th>Contenu</th></tr>
+<tr><td>core</td><td>Modèles de base, permissions, middleware d’audit, signaux de journalisation</td></tr>
+<tr><td>staff</td><td>Personnel, rôles, permissions, authentification</td></tr>
+<tr><td>patients</td><td>Patient, contacts, allergies, antécédents ; filtres de recherche avancée</td></tr>
+<tr><td>consultations</td><td>Consultations, diagnostics, prescriptions, constantes, notes d’évolution</td></tr>
+<tr><td>hospitalization</td><td>Services, chambres, lits, hospitalisations, transferts</td></tr>
+<tr><td>appointments</td><td>Rendez-vous, liste d’attente, planning des médecins</td></tr>
+<tr><td>laboratory</td><td>Examens, résultats, demandes et fichiers d’imagerie</td></tr>
+<tr><td>billing</td><td>Assurances, tarifs, factures, paiements</td></tr>
+<tr><td>archive</td><td>Journal d’audit ; tâches Celery d’archivage automatique</td></tr>
+<tr><td>notifications</td><td>Notifications en temps réel (WebSocket, Django Channels)</td></tr>
+<tr><td>reports</td><td>Génération de rapports et export PDF (Celery)</td></tr></table></div>
+<p>Configuration dans <code>config/settings/</code> (base, développement, production, test). Dépendances dans <code>requirements/</code> (base, développement, production). Un <code>Dockerfile</code> est fourni.</p>
+<h3>Frontend (<code>frontend/src/</code>)</h3>
+<p>Dossiers <code>app</code> (routes, fournisseurs), <code>components</code> (ui, shared), <code>hooks</code>, <code>services</code> (Axios, WebSocket), <code>store</code> (Zustand), <code>types</code>, <code>lib</code> (Zod) et <code>styles</code>. Outils : Vite, TypeScript, Tailwind, composants ShadCN. Les écrans comprennent le tableau de bord par rôle, la recherche d’archives, le journal d’audit et la gestion des utilisateurs.</p></section>
+
+<section id="donnees"><h2>4. Données</h2>
+<div class="w"><table><tr><th>Entité</th><th>Description</th><th>Champs (exemples)</th></tr>
+<tr><td>Patient</td><td>Personne concernée par le dossier</td><td>identifiant, nom, prénom, date de naissance</td></tr>
+<tr><td>Dossier médical</td><td>Informations administratives du dossier</td><td>identifiant, patient, date de création, statut</td></tr>
+<tr><td>Document</td><td>Pièce archivée (PDF, image)</td><td>identifiant, dossier, type, chemin, date</td></tr>
+<tr><td>Utilisateur</td><td>Compte d’accès</td><td>identifiant, nom d’utilisateur, rôle</td></tr>
+<tr><td>Journal d’accès</td><td>Trace des consultations et modifications</td><td>utilisateur, action, horodatage</td></tr></table></div>
+<p>Les documents sont conservés en PDF ou image, nommés avec l’identifiant du dossier et la date, et référencés en base par chemin et métadonnées.</p>
+<p class="note">Le modèle réel contient plus d’entités que ce tableau (voir section 3). Le diagramme de la base figure dans le document source.</p></section>
+
+<section id="api"><h2>5. API et interfaces</h2>
+<p>API REST au format JSON, routes préfixées par <code>/api/</code>. Hors connexion, chaque requête exige un jeton JWT dans l’en-tête <code>Authorization: Bearer …</code>. Le jeton a une durée limitée et doit être renouvelé.</p>
+<div class="w"><table><tr><th>Méthode</th><th>Route</th><th>Rôle</th></tr>
+<tr><td>POST</td><td><code>/api/auth/login/</code></td><td>Tous (obtention du jeton)</td></tr>
+<tr><td>GET</td><td><code>/api/dossiers/</code></td><td>Personnel médical, administratif</td></tr>
+<tr><td>POST</td><td><code>/api/dossiers/</code></td><td>Personnel administratif</td></tr>
+<tr><td>GET</td><td><code>/api/dossiers/{id}/</code></td><td>Selon rôle</td></tr>
+<tr><td>POST</td><td><code>/api/dossiers/{id}/documents/</code></td><td>Personnel administratif</td></tr>
+<tr><td>GET</td><td><code>/api/utilisateurs/</code></td><td>Administrateur</td></tr></table></div>
+<p>Les échanges avec l’extérieur se font aujourd’hui en PDF. HL7, FHIR et DICOM sont une évolution possible (section 12).</p></section>
+
+<section id="securite"><h2>6. Sécurité</h2>
+<p>Authentification par identifiant et mot de passe (mots de passe hachés par Django), puis jeton à durée limitée. Les droits suivent un modèle par rôles (RBAC).</p>
+<div class="w"><table><tr><th>Rôle</th><th>Permissions <span class="tag">proposition à confirmer</span></th></tr>
+<tr><td>Administrateur</td><td>Accès complet, gestion des comptes et de la configuration</td></tr>
+<tr><td>Personnel médical</td><td>Lecture et écriture sur les dossiers</td></tr>
+<tr><td>Personnel administratif</td><td>Lecture et écriture sur dossiers et documents</td></tr>
+<tr><td>Auditeur</td><td>Lecture seule du journal d’accès</td></tr></table></div>
+<ul><li><b>Chiffrement en transit :</b> HTTPS obligatoire. <b>Au repos :</b> <span class="tag">à confirmer</span></li>
+<li><b>Journalisation :</b> chaque consultation, création ou modification est enregistrée (utilisateur, action, horodatage).</li>
+<li><b>Secrets :</b> jamais dans le code ni la documentation ; variables d’environnement uniquement.</li></ul></section>
+
+<section id="conformite"><h2>7. Conformité</h2>
+<p>Le traitement des dossiers respecte le cadre applicable à la protection des données de santé et au secret médical. Trois points restent à fixer avec la direction de l’HDD : <span class="tag">cadre réglementaire</span> <span class="tag">durée de conservation</span> <span class="tag">procédure des droits d’accès et de rectification</span>. Le journal d’accès sert de base aux audits.</p></section>
+
+<section id="installation"><h2>8. Installation et déploiement</h2>
+<p>Prérequis pressentis <span class="tag">à confirmer</span> : Python 3 et pip, Node.js et npm, PostgreSQL, Git.</p>
+<pre><code>git clone https://github.com/yannjeffs/tutore_vrai.git
+# Backend
+python -m venv venv &amp;&amp; source venv/bin/activate
+pip install -r requirements/development.txt
+python manage.py migrate
+python manage.py runserver
+# Frontend
+npm install
+npm start    # ou npm run dev (projet Vite)</code></pre>
+<p>Configurer d’abord les variables d’environnement (base de données, clé secrète Django, jeton). En production : serveur web (par exemple Nginx devant Gunicorn), build de production du frontend et HTTPS.</p></section>
+
+<section id="exploitation"><h2>9. Exploitation</h2>
+<ul><li><b>Supervision :</b> surveiller régulièrement les journaux applicatifs (erreurs, accès).</li><li><b>Sauvegarde :</b> sauvegardes régulières de la base et du stockage des documents, avec test périodique de restauration.</li><li><b>Mises à jour :</b> branche dédiée, tests, déploiement après validation.</li><li><b>Continuité :</b> plan de reprise pour garantir l’accès aux dossiers en cas de panne.</li></ul></section>
+
+<section id="depannage"><h2>10. Dépannage</h2>
+<div class="w"><table><tr><th>Symptôme</th><th>Cause probable</th><th>Action</th></tr>
+<tr><td>Erreur 401 sur l’API</td><td>Jeton absent ou expiré</td><td>Se reconnecter</td></tr>
+<tr><td>Connexion à la base impossible</td><td>Variables d’environnement incorrectes</td><td>Vérifier la configuration (section 8)</td></tr>
+<tr><td>Document introuvable après archivage</td><td>Échec d’enregistrement du fichier</td><td>Vérifier l’espace disque et les journaux</td></tr></table></div>
+<p>Escalade : transmettre à l’équipe de développement les symptômes, les étapes de reproduction et les journaux.</p></section>
+
+<section id="qualite"><h2>11. Qualité et contribution</h2>
+<ul><li><b>Tests :</b> tests automatisés Django (modèles, endpoints) et tests de composants React. Couverture <span class="tag">à vérifier</span></li><li><b>Données de test :</b> uniquement anonymisées.</li><li><b>Recette :</b> connexion, enregistrement, recherche, consultation, droits d’accès.</li><li><b>Code :</b> PEP 8 pour Python, conventions React.</li><li><b>Git :</b> branche par fonctionnalité, pull request relue par au moins un autre membre.</li></ul></section>
+
+<section id="evolutions"><h2>12. Évolutions prévues</h2>
+<ul><li>Interopérabilité HL7, FHIR et DICOM</li><li>Chiffrement au repos des documents archivés</li><li>Tableau de bord de supervision</li><li>Sauvegardes et tests de restauration automatisés</li></ul></section>
+
+<section id="glossaire"><h2>Glossaire</h2>
+<p><b>RBAC</b> : contrôle d’accès par rôles. <b>JWT</b> : jeton d’authentification. <b>DRF</b> : Django REST Framework. <b>HDD</b> : Hôpital de District de Deido.</p></section>
+</main>
+<script>
+var S=[].slice.call(document.querySelectorAll("main section")),M=document.getElementById("menu"),q=document.getElementById("q");
+S.forEach(function(s){var a=document.createElement("a");a.href="#"+s.id;a.textContent=s.querySelector("h2").textContent;M.appendChild(a)});
+var L=[].slice.call(M.children);
+q.addEventListener("input",function(){var v=q.value.toLowerCase().trim();S.forEach(function(s,i){var ok=!v||s.textContent.toLowerCase().indexOf(v)>-1;s.classList.toggle("none",!ok);L[i].classList.toggle("none",!ok)})});
+var o=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting){L.forEach(function(a){a.classList.toggle("on",a.hash==="#"+x.target.id)})}})},{rootMargin:"0px 0px -70% 0px"});
+S.forEach(function(s){o.observe(s)});
+</script></body></html>
